@@ -5,6 +5,6 @@ members = [
     "crates/ast",
     "crates/ir",
     "crates/codegen",
-    "tools/alpherac",
+    "tools/alpherac", "crates/utils",
 ]
 
