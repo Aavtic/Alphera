@@ -21,8 +21,18 @@ pub mod lexer {
         Comma,
         Plus,
         Minus,
+        Star,
+        Slash,
         SemiColon,
         Dot,
+
+        // One or Two character tokens
+        Bang, BangEqual,
+        Equal, EqualEqual,
+        Greater, GreaterEqual,
+        Lesser, LesserEqual,
+
+        Or, And, BitwiseOr, BitwiseAnd,
 
         // Literals
         Identifier,
@@ -31,7 +41,7 @@ pub mod lexer {
 
         // Keywords
         Fn,
-        Include
+        Include,
     }
 
     #[derive(Debug)]
@@ -111,6 +121,17 @@ pub mod lexer {
             return self.source.chars().nth(self.current).unwrap();
         }
 
+        fn check_current(&mut self, c: char) -> bool {
+            if self.is_end() {
+                return false;
+            }
+            if self.peek() != c {
+                return false;
+            }
+            self.advance();
+            return true;
+        }
+
         fn trim_string(&self) -> String {
             // TODO:
             // Handle this better
@@ -136,8 +157,6 @@ pub mod lexer {
 
             // get the last "
             self.advance();
-
-            // TODO: trim the start and ending "
 
             let trimmed = self.trim_string();
 
@@ -185,6 +204,8 @@ pub mod lexer {
                 ',' => self.add_token(TokenType::Comma, None),
                 '+' => self.add_token(TokenType::Plus, None),
                 '-' => self.add_token(TokenType::Minus, None),
+                '*' => self.add_token(TokenType::Star, None),
+                '/' => self.add_token(TokenType::Slash, None),
                 ';' => self.add_token(TokenType::SemiColon, None),
                 '.' => self.add_token(TokenType::Dot, None),
 
@@ -193,6 +214,54 @@ pub mod lexer {
                 '\t' => { self.col += 4 }
 
                 '\n' => { self.line += 1; self.col = 0 }
+
+                '!' => {
+                    if self.check_current('=') {
+                        self.add_token(TokenType::BangEqual, None)
+                    } else {
+                        self.add_token(TokenType::Bang, None)
+                    }
+                },
+
+                '>' => {
+                    if self.check_current('=') {
+                        self.add_token(TokenType::GreaterEqual, None);
+                    } else {
+                        self.add_token(TokenType::Greater, None);
+                    }
+                }
+
+                '<' => {
+                    if self.check_current('=') {
+                        self.add_token(TokenType::LesserEqual, None);
+                    } else {
+                        self.add_token(TokenType::Lesser, None);
+                    }
+                }
+
+                '=' => {
+                    if self.check_current('=') {
+                        self.add_token(TokenType::EqualEqual, None);
+                    } else {
+                        self.add_token(TokenType::Equal, None);
+                    }
+                }
+
+                '|' => {
+                    if self.check_current('|') {
+                        self.add_token(TokenType::Or, None);
+                    } else {
+                        self.add_token(TokenType::BitwiseOr, None);
+                    }
+                }
+
+                '&' => {
+                    if self.check_current('&') {
+                        self.add_token(TokenType::And, None);
+                    } else {
+                        self.add_token(TokenType::BitwiseAnd, None);
+                    }
+                }
 
                 '"' => self.add_token_string(),
                 _ => {

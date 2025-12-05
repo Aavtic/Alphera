@@ -1,5 +1,6 @@
 include std;
 
 fn main() {
+    expr = a >= b || c <= d && e >= f || g <= h;
     std.println("Hello World!");
 }
